@@ -1,25 +1,105 @@
 const dataset = [100, 150, 80, 180, 120];
-const svgWid = 500;
-const svgHt = 300;
 
-const svg = d3.select('svg');
+render();
+window.addEventListener('resize', render);
 
-// xPercent에 대입되는 값은 백분통화 해주는 함수
-const xPercent = d3
-  .scaleLinear() // 비율화 준비
-  .domain([0, d3.max(dataset)]) // 데이터를 비율화
-  .range([0, svgWid]); // 데이터가 출력된 프레임을 비율화
+function render(){
+  const svg = d3.select('svg');
+  const svgWid = svg.node().getBoundingClientRect().width;
+  const svgHt = svg.node().getBoundingClientRect().height;
 
+/************************************************* */
+// 세로로 표시하기
+// const xPercent = d3
+//   .scaleLinear() // 비율화 준비
+//   .domain([0, d3.max(dataset)]) // 데이터를 비율화. (최소, 최대)
+//   .range([0, svgHt]); // 데이터가 출력된 프레임을 비율화
+
+//   svg
+//     .selectAll('rect')
+//     .data(dataset)
+//     .enter()
+//     .append('rect')
+//     .attr('y', (d) => svgHt - xPercent(d))
+//     .attr('x', (d,i)=> i*50 + 10)
+//     .attr('height', (d) => xPercent(d)) //xPercent 함수를 이용하여 각 수치 값을 전달시 자동으로 제일 큰 수치 값을 기준으로 백분율화
+//     .attr('width', 40)
+//     .attr('fill', 'pink');
+
+//     svg
+//     .selectAll('text')
+//     .data(dataset)
+//     .enter()
+//     .append('text')
+//     .attr('x', (d,i) => i*50 + 45)
+//     .attr('y', (d)=> svgHt - xPercent(d) + 15)
+//     .attr('text-anchor','end')
+//     .text((d)=>d)             //text 출력
+//     .attr("font-size", "15px")
+
+/************************************************* */
+// 우측 정렬된 것처럼 표시하기
+  const xPercent = d3
+    .scaleLinear() // 비율화 준비
+    .domain([0, d3.max(dataset)]) // 데이터를 비율화. (최소, 최대)
+    .range([0, svgWid]); // 데이터가 출력된 프레임을 비율화
+
+  //기존에 그렸던 것을 초기화
+  svg.selectAll('text').remove();
+  svg.selectAll('rect').remove();
+
+  // 갱신된 값으로 그리기
   svg
     .selectAll('rect')
     .data(dataset)
     .enter()
     .append('rect')
-    .attr('x', 0)
+    .attr('x', (d) => svgWid - xPercent(d))
     .attr('y', (d,i)=> i*25 + 10)
     .attr('width', (d) => xPercent(d)) //xPercent 함수를 이용하여 각 수치 값을 전달시 자동으로 제일 큰 수치 값을 기준으로 백분율화
     .attr('height', 20)
     .attr('fill', 'pink');
+
+  svg
+    .selectAll('text')
+    .data(dataset)
+    .enter()
+    .append('text')
+    .attr('x', (d) => svgWid - xPercent(d) + 5)
+    .attr('y', (d,i)=> i*25 + 25)
+    .text((d)=>d)             //text 출력
+    .attr("font-size", "15px")
+  }
+
+/************************************************* */
+// xPercent에 대입되는 값은 백분화 해주는 함수
+// const xPercent = d3
+//   .scaleLinear() // 비율화 준비
+//   .domain([0, d3.max(dataset)]) // 데이터를 비율화. (최소, 최대)
+//   .range([0, svgWid]); // 데이터가 출력된 프레임을 비율화
+
+//   svg
+//     .selectAll('rect')
+//     .data(dataset)
+//     .enter()
+//     .append('rect')
+//     .attr('x', 0)
+//     .attr('y', (d,i)=> i*25 + 10)
+//     .attr('width', (d) => xPercent(d)) //xPercent 함수를 이용하여 각 수치 값을 전달시 자동으로 제일 큰 수치 값을 기준으로 백분율화
+//     .attr('height', 20)
+//     .attr('fill', 'pink');
+
+// svg
+//   .selectAll('text')
+//   .data(dataset)
+//   .enter()
+//   .append('text')
+//   .attr('x', (d) => xPercent(d) - 5)
+//   .attr('y', (d,i)=> i*25 + 25)
+//   .attr('text-anchor','end')
+//   .text((d)=>d)             //text 출력
+//   .attr("font-size", "15px");
+
 
 
 /*********** 차트 그리기 ***************/
