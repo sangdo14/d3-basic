@@ -1,19 +1,21 @@
 const dataset = [100, 150, 80, 180, 120, 30, 300, 280, 200];
 
-render();
-window.addEventListener('resize', render);
+render(100, 10, 200, 1000);
+window.addEventListener('resize', () => render(100, 10, 0, 1000));
 
-function render(){
+function render(initPos=100, barPadding=10, interval=0, speed=1000){
   const svg = d3.select('svg');
   const svgWid = svg.node().getBoundingClientRect().width;
   const svgHt = svg.node().getBoundingClientRect().height;
-  const initPos = 100;
   const barWid = (svgWid - initPos*2) / dataset.length  ;
-  const barPadding = 10;
+  // const initPos = 100;
+  // const barPadding = 10;
+  // const interval = 200;
+  // const speed = 1000;
 
 /************************************************* */
 // 세로로 표시하기
-const xPercent = d3
+const Percent = d3
   .scaleLinear() // 비율화 준비
   .domain([0, d3.max(dataset)]) // 데이터를 비율화. (최소, 최대)
   .range([0, svgHt - 30]); // 데이터가 출력된 프레임을 비율화
@@ -27,11 +29,16 @@ const xPercent = d3
     .data(dataset)
     .enter()
     .append('rect')
-    .attr('y', (d) => svgHt - xPercent(d))
+    .attr('y', svgHt)
     .attr('x', (d,i)=> i*barWid + initPos)
-    .attr('height', (d) => xPercent(d)) //xPercent 함수를 이용하여 각 수치 값을 전달시 자동으로 제일 큰 수치 값을 기준으로 백분율화
+    .attr('height', 0) //Percent 함수를 이용하여 각 수치 값을 전달시 자동으로 제일 큰 수치 값을 기준으로 백분율화
     .attr('width', barWid - barPadding)
-    .attr('fill', 'pink');
+    .attr('fill', 'pink')
+    .transition()
+    .delay((d, i) => i* interval)
+    .duration(speed)
+    .attr('y', (d) => svgHt - Percent(d))
+    .attr('height', (d)=>Percent(d));
 
     svg
     .selectAll('text')
@@ -39,15 +46,20 @@ const xPercent = d3
     .enter()
     .append('text')
     .attr('x', (d,i) => i*barWid + initPos + (barWid - barPadding)/2)
-    .attr('y', (d)=> svgHt - xPercent(d) + 15)
+    .attr('y', (d)=> svgHt - Percent(d) + 20)
     .attr('text-anchor', 'middle')
     .text((d)=>d)             //text 출력
     .attr("font-size", "15px")
+    .attr('fill', 'transparent')
+    .transition()
+    .delay((d, i) => i* interval + speed)
+    .duration(speed)
+    .attr('fill', 'black');
 }
 
 /************************************************* */
 // 우측 정렬된 것처럼 표시하기
-  // const xPercent = d3
+  // const Percent = d3
   //   .scaleLinear() // 비율화 준비
   //   .domain([0, d3.max(dataset)]) // 데이터를 비율화. (최소, 최대)
   //   .range([0, svgWid]); // 데이터가 출력된 프레임을 비율화
@@ -62,9 +74,9 @@ const xPercent = d3
   //   .data(dataset)
   //   .enter()
   //   .append('rect')
-  //   .attr('x', (d) => svgWid - xPercent(d))
+  //   .attr('x', (d) => svgWid - Percent(d))
   //   .attr('y', (d,i)=> i*25 + 10)
-  //   .attr('width', (d) => xPercent(d)) //xPercent 함수를 이용하여 각 수치 값을 전달시 자동으로 제일 큰 수치 값을 기준으로 백분율화
+  //   .attr('width', (d) => Percent(d)) //Percent 함수를 이용하여 각 수치 값을 전달시 자동으로 제일 큰 수치 값을 기준으로 백분율화
   //   .attr('height', 20)
   //   .attr('fill', 'pink');
 
@@ -73,15 +85,15 @@ const xPercent = d3
   //   .data(dataset)
   //   .enter()
   //   .append('text')
-  //   .attr('x', (d) => svgWid - xPercent(d) + 5)
+  //   .attr('x', (d) => svgWid - Percent(d) + 5)
   //   .attr('y', (d,i)=> i*25 + 26)
   //   .text((d)=>d)             //text 출력
   //   .attr("font-size", "15px")
   // }
 
 /************************************************* */
-// xPercent에 대입되는 값은 백분화 해주는 함수
-// const xPercent = d3
+// Percent에 대입되는 값은 백분화 해주는 함수
+// const Percent = d3
 //   .scaleLinear() // 비율화 준비
 //   .domain([0, d3.max(dataset)]) // 데이터를 비율화. (최소, 최대)
 //   .range([0, svgWid]); // 데이터가 출력된 프레임을 비율화
@@ -93,7 +105,7 @@ const xPercent = d3
 //     .append('rect')
 //     .attr('x', 0)
 //     .attr('y', (d,i)=> i*25 + 10)
-//     .attr('width', (d) => xPercent(d)) //xPercent 함수를 이용하여 각 수치 값을 전달시 자동으로 제일 큰 수치 값을 기준으로 백분율화
+//     .attr('width', (d) => Percent(d)) //Percent 함수를 이용하여 각 수치 값을 전달시 자동으로 제일 큰 수치 값을 기준으로 백분율화
 //     .attr('height', 20)
 //     .attr('fill', 'pink');
 
@@ -102,7 +114,7 @@ const xPercent = d3
 //   .data(dataset)
 //   .enter()
 //   .append('text')
-//   .attr('x', (d) => xPercent(d) - 5)
+//   .attr('x', (d) => Percent(d) - 5)
 //   .attr('y', (d,i)=> i*25 + 25)
 //   .attr('text-anchor','end')
 //   .text((d)=>d)             //text 출력
